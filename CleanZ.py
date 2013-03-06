@@ -19,7 +19,8 @@ def ProcessFolder(path, condition, operation):
 def DeleteFiles(filePath):
 	success = True
 	(dirpath, wildcard) = os.path.split(filePath)
-	os.chdir(dirpath)	# TBD: Change back to the original folder
+	origDir = os.getcwd()
+	os.chdir(dirpath)
 	for filename in glob.glob(wildcard):
 		if options.verbose: print("Deleting",filename)
 		if not options.test:
@@ -28,15 +29,19 @@ def DeleteFiles(filePath):
 			except OSError as e:
 				print("Unable to delete",filename,": ",e)
 				success = False
+	os.chdir(origDir)
 	return success
 
 # UnRAR the given file to the target folder
 def UnRAR(filePath, targetFolder):
 	if options.test: return True
-	os.chdir(targetFolder)	# TBD: Change back to the original folder
-	return subprocess.call(
+	origDir = os.getcwd()
+	os.chdir(targetFolder)
+	retVal = subprocess.call(
 		["c:\\Program Files\\WinRAR\\unRAR.exe",
 		"e", "-y", filePath]) == 0
+	os.chdir(origDir)
+	return retVal
 
 # Returns true if the given file is a RAR
 def IsRAR(filePath):
